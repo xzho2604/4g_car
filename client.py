@@ -35,9 +35,9 @@ import Adafruit_PCA9685
 # define some pwm value
 motor_stop = 360
 motor_forward = 600
-motor_back = 335
-servo_mid = 400
-servo_left = 510 #460
+motor_back = 320
+servo_mid = 408
+servo_left = 526 #460
 servo_right = 290 # 350
 # --------------------------------------------
 # setting up socket connection
@@ -91,8 +91,8 @@ def motorControl(value):
     pwm.set_pwm(0,0,value)
 
 def servoTurn(value):
-    # [290,400,510] [-32767 ,32767]
-    value = (value/32767)*(100) + 400
+    # [290,408,526] [-32767 ,32767]
+    value = (-value/32767)*(118) + 408
     print("Turinig: ",int(value))
     pwm.set_pwm(1, 0, int(value))
 
