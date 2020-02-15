@@ -1,1 +1,0 @@
-/usr/local/lib/python3.5/dist-packages/pyPS4Controller/controller.py

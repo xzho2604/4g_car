@@ -34,14 +34,12 @@ import Adafruit_PCA9685
 # pwm setup
 # define some pwm value
 motor_stop = 360
-motor_forward = 500
+motor_forward = 600
 motor_back = 335
-
 servo_mid = 400
-servo_left = 460
-servo_right = 350
-# ----------------------------------------------
-# ----------------------------------------------
+servo_left = 510 #460
+servo_right = 290 # 350
+# --------------------------------------------
 # setting up socket connection
 def tcpInit(host,port):
     # set up the network connection
@@ -83,26 +81,47 @@ def pwmInit():
     return pwm
 
 # some help functions for seting pwm
+def motorForward(value):
+    # modulise the data to mactch the pwm range
+    # [360,600] [-32767 ,32767]
+    value = (value/32767 + 0.5)*(600-360) + 480
+    pwm.set_pwm(0,0,int(value))
+
 def motorControl(value):
     pwm.set_pwm(0,0,value)
+
+def servoTurn(value):
+    # [290,400,510] [-32767 ,32767]
+    value = (value/32767)*(100) + 400
+    print("Turinig: ",int(value))
+    pwm.set_pwm(1, 0, int(value))
 
 def servoControl(value):
     pwm.set_pwm(1, 0, value)
 
+def motorBack(value):
+    pwm.set_pwm(0,0,value)
+
 # given the data received from the socket parse the right command
 def parseCmd(data):
     if("on_L2_press" in data): # goingforward
-       #motorControl(data["on_L2_press"])
-       motorControl(motor_forward)
+       motorForward(data["on_L2_press"])
+       #motorControl(motor_forward)
     if("on_L2_release" in data): # motor stop
        #motorControl(data["on_L2_press"])
        motorControl(motor_stop)
+    if("on_down_arrow_press" in data): # motor back
+       #motorControl(data["on_L2_press"])
+       motorControl(motor_back)
+    if("on_down_arrow_release" in data): # motor back
+       #motorControl(data["on_L2_press"])
+       motorControl(motor_stop)
     if("on_R3_left" in data): # turn left
-       #servoControl(data["on_R3_left"])
-       servoControl(servo_left)
+       servoTurn(data["on_R3_left"])
+       #servoControl(servo_left)
     if("on_R3_right" in data): # turn right
-       #servoControl(data["on_R3_right"])
-       servoControl(servo_right)
+       servoTurn(data["on_R3_right"])
+       #servoControl(servo_right)
     if("on_R3_rest" in data): # server center
        #servoControl(servo_stop)
        servoControl(servo_mid)
