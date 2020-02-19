@@ -22,9 +22,16 @@ class Actions:
         '''
         # set up UDP connection
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_address = ('localhost', 5555)
-
-
+        self.server_address = ('', 8888)
+        # -----------------------------------------------------
+        print("Waiting for server init handshake!")
+        while True:
+            data, self.server_address = self.s.recvfrom(4096)
+            if(data):
+                print(data)
+                break
+        # -----------------------------------------------------
+        
 
     def on_x_press(self):
         print("on_x_press")
