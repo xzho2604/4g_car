@@ -57,19 +57,25 @@ def tcpInit(host,port):
 
     return s
 
+# set up the initial connection with the host using udp
 def udpInit(host,port):
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    server_address = (host, port)
-    message = 'This is the message.  It will be repeated.'
-
     # Bind the socket to the port
     server_address = (host, port)
     sock.bind(server_address)
     print("server bind to: " ,host , port)
 
+    #----------------------------------------
+    # send initial shaske message for client to get the
+    # server address for communication
+    message="server init handshake!"
+    sock.sendto(message.encode(),server_address)
+
+    #----------------------------------------
+
     return sock
+
 
 def pwmInit():
     # init the PCA9685 using the default address(0x40)
@@ -113,9 +119,11 @@ def parseCmd(data):
     if("on_down_arrow_press" in data): # motor back
        #motorControl(data["on_L2_press"])
        motorControl(motor_back)
+       #print("pressed down!!!!")
     if("on_down_arrow_release" in data): # motor back
        #motorControl(data["on_L2_press"])
        motorControl(motor_stop)
+       #print("released down!!!!")
     if("on_R3_left" in data): # turn left
        servoTurn(data["on_R3_left"])
        #servoControl(servo_left)
@@ -152,7 +160,7 @@ def tcpListen():
 
 # ----------------------------------------------
 # init socket connection
-s = udpInit("localhost",5555)
+#s = udpInit("localhost",5555)
 pwm = pwmInit()
 
 
