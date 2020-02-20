@@ -30,6 +30,10 @@ import json
 import time
 import Adafruit_PCA9685
 
+from flask import Flask
+from flask import jsonify
+from flask import request
+
 # ----------------------------------------------
 # pwm setup
 # define some pwm value
@@ -44,6 +48,8 @@ servo_right = 290 # 350
 def tcpInit(host,port):
     # set up the network connection
     # init the connection
+    host = ''        # Symbolic name meaning all available interfaces
+    port = 5555     # Arbitrary non-privileged port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
@@ -53,7 +59,7 @@ def tcpInit(host,port):
     conn, addr = s.accept()
     print('Connected by', addr)
 
-    return conn, s
+    return s
 
 # set up the initial connection with the host using udp
 def udpInit(host,port):
@@ -161,20 +167,17 @@ def tcpListen():
 
 # ----------------------------------------------
 # init socket connection
-conn, s = tcpInit("",8888)
 pwm = pwmInit()
 
 
+'''
+s = udpInit("",8888)
 # ----------------------------------------------
 # UDP receive data
 while True:
-    #data, address = s.recvfrom(4096)
-    data = conn.recv(4096)
+    data, address = s.recvfrom(4096)
     if(data):
-        print("client got:",data.decode())
-        print(isinstance(data.decode(), str))
-        print()
-        print()
+        print("client got:",data)
         try:
             data = json.loads(data.decode())
         except:
@@ -184,7 +187,21 @@ while True:
         parseCmd(data)
 
 
+'''
+app = Flask(__name__)
 
+# receive http request
+@app.route('/', methods = ['POST'])
+def receiveCmd():
+    cmd = request.get_json()
+    print("received :", cmd)
+    parseCmd(cmd)
+
+    return "Roger"
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
