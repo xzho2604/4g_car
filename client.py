@@ -70,7 +70,8 @@ def udpInit(host,port):
     # send initial shaske message for client to get the
     # server address for communication
     message="server init handshake!"
-    sock.sendto(message.encode(),server_address)
+    sock.sendto(message.encode(),("203.194.11.102",8888))
+    print("sent server init handshake")
 
     #----------------------------------------
 
@@ -160,7 +161,7 @@ def tcpListen():
 
 # ----------------------------------------------
 # init socket connection
-#s = udpInit("localhost",5555)
+s = udpInit("",8888)
 pwm = pwmInit()
 
 
@@ -169,8 +170,11 @@ pwm = pwmInit()
 while True:
     data, address = s.recvfrom(4096)
     if(data):
-        print(data)
-        data = json.loads(data.decode())
+        print("client got:",data)
+        try:
+            data = json.loads(data.decode())
+        except:
+            continue
         # process the data to see what command is
         #TODO : going backward
         parseCmd(data)
