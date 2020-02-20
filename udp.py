@@ -13,7 +13,8 @@ server_address = ("220.245.76.1",5555)
 message  = " hello from the raspi!"
 sock.sendto(message.encode(),server_address)
 
-print("message sent to my mac",server_address)
+print("message sent to my mac: ",server_address)
+
 '''
 # receive feedback from the server
 data,server_address = sock.recvfrom(4096)
