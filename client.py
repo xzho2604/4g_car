@@ -159,28 +159,56 @@ def tcpListen():
 
     conn.close()
 
+def splitCmd(s):
+    # split consecutive message into
+    #["cmd":"value",...]
+    l = [x.replace("{","").replace("}","").replace("\"","") for x in s.split("}{")]
+
+    for d in l:
+        dl = d.split(":") # [cmd,value]
+        cmd = {dl[0]:int(dl[1])}
+        print(cmd)
+        parseCmd(cmd)
+
+
+
 # ----------------------------------------------
-# init socket connection
-conn, s = tcpInit("",8888)
+# init message send to the NAT server
+message="server"
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.sendto(message.encode(),("3.104.231.53",8888))
+
 pwm = pwmInit()
 
-
+init_connect = False # indicate if the NAT server received this server conn
 # ----------------------------------------------
 # UDP receive data
 while True:
-    #data, address = s.recvfrom(4096)
-    data = conn.recv(4096)
+    data, address = s.recvfrom(4096)
+    #data = conn.recv(4096)
     if(data):
-        print("client got:",data.decode())
-        print(isinstance(data.decode(), str))
-        print()
-        print()
+        data = data.decode()
+        print("received data:",data)
+
+        # if NAT server receive the server init connection message then
+        # we are good and can now wait to receive over lay message from
+        # NAT sever else need to send the init connect message again
+        '''
+        if(data == "ack"):
+            init_connect = True
+            continue;
+        else:
+            s.sendto(message.encode(),("3.104.231.53",8888))
+            continue;
+
+        '''
         try:
-            data = json.loads(data.decode())
+            data = json.loads(data)
+            # TODO: make split faster
+            #splitCmd(data.decode())
         except:
             continue
         # process the data to see what command is
-        #TODO : going backward
         parseCmd(data)
 
 
