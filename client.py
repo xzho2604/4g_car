@@ -21,10 +21,10 @@ max pulxe lenght of 4096
     pwm.set_pwm(1,0,servo_forward)
 
 """
-
-
+import time, threading
 import socket
 import json
+import urllib 
 
 #import RPI.GPIO as GPIO
 import time
@@ -40,6 +40,8 @@ servo_mid = 408
 servo_left = 526 #460
 servo_right = 290 # 350
 # --------------------------------------------
+
+
 # setting up socket connection
 def tcpInit(host,port):
     # set up the network connection
@@ -171,16 +173,41 @@ def splitCmd(s):
         parseCmd(cmd)
 
 
+# check heartbeat from NAT to see if still have connection
+def check_connection():
+    print("Checking connection")
+    global heart_beat_ack,s
+    if (not heart_beat_ack): # connection might lost reconnect with the NAT
+
+        # reconnect the server
+        message="server"
+        try:
+            s.sendto(message.encode(),("3.104.231.53",8888))
+            print("connection might lost reconnnect")
+        except:
+            print("can not send packet")
+
+    else:
+        heart_beat_ack = False # reset the heartbeat
+
+    threading.Timer(3, check_connection).start()
+
+
+
 
 # ----------------------------------------------
+#wait_for_internet_connection()
 # init message send to the NAT server
+# --------------------------------------------
+heart_beat_ack = False
 message="server"
+
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.sendto(message.encode(),("3.104.231.53",8888))
 
 pwm = pwmInit()
+check_connection()
 
-init_connect = False # indicate if the NAT server received this server conn
 # ----------------------------------------------
 # UDP receive data
 while True:
@@ -189,6 +216,12 @@ while True:
     if(data):
         data = data.decode()
         print("received data:",data)
+
+        # check if heart beat data
+        if(data == "ack"): # still have connection with the NAT
+            heart_beat_ack = True
+            continue
+
 
         # if NAT server receive the server init connection message then
         # we are good and can now wait to receive over lay message from
