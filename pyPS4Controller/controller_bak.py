@@ -12,17 +12,19 @@ class Actions:
     override desired action events in this class.
     """
     def __init__(self):
-        '''
         # set up an TCP connection
         host = socket.gethostname()
-        port = 5555 # The same port as used by the server
+        port = 8888 # The same port as used by the server
+        host = "0.tcp.ngrok.io"
+        port = 15841
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((host, port))
         print("Socket connected to the Client!")
-        '''
         # set up UDP connection
+        '''
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_address = ('3.104.231.53', 8888)
+        self.server_address = ('tcp://0.tcp.ngrok.io', 16622)
+        '''
         # -----------------------------------------------------
         '''
         print("Waiting for server init handshake!")
@@ -68,13 +70,15 @@ class Actions:
     def on_L2_press(self, value):
         message = {"on_L2_press": value}
         print(message)
-        self.s.sendto(json.dumps(message).encode(),self.server_address)
+        #self.s.sendto(json.dumps(message).encode(),self.server_address)
+        self.s.send(json.dumps(message).encode())
 
 
     def on_L2_release(self):
         message = {"on_L2_release": True}
         print(message)
-        self.s.sendto(json.dumps(message).encode(),self.server_address)
+        #self.s.sendto(json.dumps(message).encode(),self.server_address)
+        self.s.send(json.dumps(message).encode())
 
     def on_R1_press(self):
         print("on_R1_press")
@@ -95,13 +99,15 @@ class Actions:
         message ={"on_down_arrow_release":True}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_down_arrow_press(self):
         message ={"on_down_arrow_press":True}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_left_arrow_press(self):
         print("on_left_arrow_press")
@@ -140,47 +146,54 @@ class Actions:
         message = {"on_R3_up":value}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_R3_down(self, value):
         message = {"on_R3_down":value}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     # TODO: need to override to send the value to the network
     def on_R3_left(self, value):
         message = {"on_R3_left":value}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_R3_right(self, value):
         message = {"on_R3_right":value}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_R3_at_rest(self):
         """R3 joystick is at rest after the joystick was moved and let go off"""
         message = {"on_R3_rest":True}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_R3_press(self):
         """R3 joystick is clicked. This event is only detected when connecting without ds4drv"""
         message = {"on_R3_press":True}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_R3_release(self):
         """R3 joystick is released after the click. This event is only detected when connecting without ds4drv"""
         message = {"on_R3_release":True}
         print(message)
         # send control command to the client
-        self.s.sendto(json.dumps(message).encode(),self.server_address);
+        #self.s.sendto(json.dumps(message).encode(),self.server_address);
+        self.s.send(json.dumps(message).encode())
 
     def on_options_press(self):
         print("on_options_press")

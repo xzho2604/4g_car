@@ -21,14 +21,18 @@ max pulxe lenght of 4096
     pwm.set_pwm(1,0,servo_forward)
 
 """
-import time, threading
+
+
 import socket
 import json
-import urllib 
 
 #import RPI.GPIO as GPIO
 import time
 import Adafruit_PCA9685
+
+from flask import Flask
+from flask import jsonify
+from flask import request
 
 # ----------------------------------------------
 # pwm setup
@@ -40,12 +44,12 @@ servo_mid = 408
 servo_left = 526 #460
 servo_right = 290 # 350
 # --------------------------------------------
-
-
 # setting up socket connection
 def tcpInit(host,port):
     # set up the network connection
     # init the connection
+    host = ''        # Symbolic name meaning all available interfaces
+    port = 5555     # Arbitrary non-privileged port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, port))
@@ -55,7 +59,7 @@ def tcpInit(host,port):
     conn, addr = s.accept()
     print('Connected by', addr)
 
-    return conn, s
+    return s
 
 # set up the initial connection with the host using udp
 def udpInit(host,port):
@@ -161,91 +165,43 @@ def tcpListen():
 
     conn.close()
 
-def splitCmd(s):
-    # split consecutive message into
-    #["cmd":"value",...]
-    l = [x.replace("{","").replace("}","").replace("\"","") for x in s.split("}{")]
-
-    for d in l:
-        dl = d.split(":") # [cmd,value]
-        cmd = {dl[0]:int(dl[1])}
-        print(cmd)
-        parseCmd(cmd)
-
-
-# check heartbeat from NAT to see if still have connection
-def check_connection():
-    print("Checking connection")
-    global heart_beat_ack,s
-    if (not heart_beat_ack): # connection might lost reconnect with the NAT
-
-        # reconnect the server
-        message="server"
-        try:
-            s.sendto(message.encode(),("3.104.231.53",8888))
-            print("connection might lost reconnnect")
-        except:
-            print("can not send packet")
-
-    else:
-        heart_beat_ack = False # reset the heartbeat
-
-    threading.Timer(3, check_connection).start()
-
-
-
-
 # ----------------------------------------------
-#wait_for_internet_connection()
-# init message send to the NAT server
-# --------------------------------------------
-heart_beat_ack = False
-message="server"
-
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.sendto(message.encode(),("3.104.231.53",8888))
-
+# init socket connection
 pwm = pwmInit()
-check_connection()
 
+
+'''
+s = udpInit("",8888)
 # ----------------------------------------------
 # UDP receive data
 while True:
     data, address = s.recvfrom(4096)
-    #data = conn.recv(4096)
     if(data):
-        data = data.decode()
-        print("received data:",data)
-
-        # check if heart beat data
-        if(data == "ack"): # still have connection with the NAT
-            heart_beat_ack = True
-            continue
-
-
-        # if NAT server receive the server init connection message then
-        # we are good and can now wait to receive over lay message from
-        # NAT sever else need to send the init connect message again
-        '''
-        if(data == "ack"):
-            init_connect = True
-            continue;
-        else:
-            s.sendto(message.encode(),("3.104.231.53",8888))
-            continue;
-
-        '''
+        print("client got:",data)
         try:
-            data = json.loads(data)
-            # TODO: make split faster
-            #splitCmd(data.decode())
+            data = json.loads(data.decode())
         except:
             continue
         # process the data to see what command is
+        #TODO : going backward
         parseCmd(data)
 
 
+'''
+app = Flask(__name__)
 
+# receive http request
+@app.route('/', methods = ['POST'])
+def receiveCmd():
+    cmd = request.get_json()
+    print("received :", cmd)
+    parseCmd(cmd)
+
+    return "Roger"
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
