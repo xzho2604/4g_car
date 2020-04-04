@@ -13,6 +13,8 @@ def udpInit(host,port):
 
     return sock
 
+#==================================================
+# establish connection with the 
 sock = udpInit("",8888)
 while True:
     data,address = sock.recvfrom(4096)
