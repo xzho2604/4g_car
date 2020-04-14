@@ -1,5 +1,5 @@
 # 4g_car
-![](/image/4g_car.jpg)
+![](/pic2/4g_car.jpg)
 
 ## TO DO
 
