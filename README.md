@@ -9,6 +9,6 @@
 
 ## Auto Start the Python Script
 ```shell
-vim /etc/profile
-python3 ~/Desktop/4g_car/client.py 
+vim /etc/rc.local
+python3 home/pi/Desktop/4g_car/client.py 
 ```
